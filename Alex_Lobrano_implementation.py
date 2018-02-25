@@ -18,13 +18,13 @@ def xor(string1, string2):
 
 def fix_leading_zeroes(ctr):
 	add_zero = 32 - len(ctr)
-	for i in range(0,add_zero):
+	for i in range(add_zero):
 		ctr = "0" + ctr
 	return ctr
 	
 def generate_message(size):
 	temp = ''
-	for i in range(0, size):
+	for i in range(size):
 		temp += random.choice(string.ascii_letters + string.digits)
 	return temp
 	
@@ -103,3 +103,21 @@ def ctr_decrypt(key, ctr, msg):
 		plaintext_array[i] = xor(msg[(i)*16:(i+1)*16],decryptor.update(ctr))
 		plaintext += plaintext_array[i]
 	return plaintext
+	
+def padding_oracle(key, iv, ciphertext):
+	plaintext = cbc_decrypt(key, iv, ciphertext)
+	plaintext_array = bytearray(plaintext)
+	pad_bytes = plaintext_array[len(plaintext_array)-1]
+	for i in range(pad_bytes):
+		if(plaintext_array[len(plaintext_array)-1-i] != pad_bytes): 
+			print "Invalid padding"
+			return 0
+	print "Valid padding"
+	return 1
+	
+def oracle_attack(key, iv, ciphertext):
+	cipher_array = bytearray(ciphertext)
+	cipher_array[0] += 1
+	new_ciphertext = ""
+	for i in range(len(cipher_array)):
+		new_ciphertext += str(chr(cipher_array[i]))
