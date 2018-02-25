@@ -12,9 +12,9 @@ def debug_oracle(key,iv,ciphertext):
 	pad_bytes = plaintext_array[len(plaintext_array)-1]
 	for i in range(pad_bytes):
 		if(plaintext_array[len(plaintext_array)-1-i] != pad_bytes): 
-			print "Invalid padding"
+			#print "Invalid padding"
 			return 0
-	print "Valid padding"
+	#print "Valid padding"
 	return 1
 
 def change_byte(first_byte,pad_byte,value):
@@ -26,8 +26,8 @@ key = '6dbb3f397f4ef34201e49ecd53b29752'.decode('hex')
 #iv = os.urandom(16)
 iv = 'e4433307dea03f1668adce1eaf48f501'.decode('hex')
 ctr = os.urandom(16)
-#msg = "This is a test of a padding oracle attack."
-msg = "This is a test of a padding oracle attack. Testing with a second message."
+msg = "This is a test of a padding oracle attack."
+#msg = "This is a test of a padding oracle attack. Testing with a second message."
 backend = default_backend() 
 
 ##################### CBC #####################
@@ -80,26 +80,32 @@ last_byte = i
 print "Bytes of padding:",padding_bytes
 print "Last byte of last block:",last_byte
 test_cipher_array = bytearray(ciphertext)
-for x in range(0, 1):
-	for k in range(last_byte, last_byte+padding_bytes):
-		test_cipher_array[k-x] = change_byte(test_cipher_array[k-x],padding_bytes,padding_bytes+1)
-		print "Changing byte", k-x, "from", format(original_cipher_array[k-x], 'x'), "to", format(test_cipher_array[k-x], 'x')
+for x in range(0, 16-padding_bytes):
+	for k in range(last_byte-x, last_byte+padding_bytes):
+		test_cipher_array[k] = change_byte(test_cipher_array[k],padding_bytes+x,padding_bytes+x+1)
+		print "Changing byte", k, "from", format(original_cipher_array[k], 'x'), "to", format(test_cipher_array[k], 'x')
 	new_ciphertext = ""
 	for i in range(len(test_cipher_array)):
 		new_ciphertext += str(chr(test_cipher_array[i]))
 	m = 0
 	while(not debug_oracle(key,iv,new_ciphertext)):
 		m += 1
-		test_cipher_array[last_byte-1] += 1
+		test_cipher_array[last_byte-x-1] += 1
+		test_cipher_array[last_byte-x-1] = test_cipher_array[last_byte-x-1] % 255
+		#print "Byte is now",test_cipher_array[last_byte-1]
 		new_ciphertext = ""
 		for i in range(len(test_cipher_array)):
 			new_ciphertext += str(chr(test_cipher_array[i]))
 	print "M:", m
-	temp = test_cipher_array[last_byte-1] ^ 8
-	plain_byte = temp ^ original_cipher_array[last_byte-1]
+	temp = test_cipher_array[last_byte-x-1] ^ (padding_bytes+x+1)
+	plain_byte = temp ^ original_cipher_array[last_byte-x-1]
+	print "Xor value:", padding_bytes+x+1
+	#plain_byte = m ^ (padding_bytes+x+1)
 	print "Plaintext byte:", plain_byte
 		
 #if(padding_oracle(key,iv,my_ciphertext)): print "Valid padding"
 #else: print "Invalid padding"
 
 #bin(int(plaintext.encode('hex'),16))
+
+#6c652061747461636b2e
