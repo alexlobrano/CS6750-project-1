@@ -21,10 +21,10 @@ def change_byte(first_byte,pad_byte,value):
 	temp = first_byte ^ pad_byte
 	return temp ^ value
 
-#key = os.urandom(16)
-key = '6dbb3f397f4ef34201e49ecd53b29752'.decode('hex')
-#iv = os.urandom(16)
-iv = 'e4433307dea03f1668adce1eaf48f501'.decode('hex')
+key = os.urandom(16)
+#key = '6dbb3f397f4ef34201e49ecd53b29752'.decode('hex')
+iv = os.urandom(16)
+#iv = 'e4433307dea03f1668adce1eaf48f501'.decode('hex')
 ctr = os.urandom(16)
 msg = "This is a test of a padding oracle attack."
 #msg = "This is a test of a padding oracle attack. Testing with a second message."
@@ -80,6 +80,7 @@ last_byte = i
 print "Bytes of padding:",padding_bytes
 print "Last byte of last block:",last_byte
 test_cipher_array = bytearray(ciphertext)
+recovered_msg = [None] * (16-padding_bytes)
 for x in range(0, 16-padding_bytes):
 	for k in range(last_byte-x, last_byte+padding_bytes):
 		test_cipher_array[k] = change_byte(test_cipher_array[k],padding_bytes+x,padding_bytes+x+1)
@@ -102,6 +103,11 @@ for x in range(0, 16-padding_bytes):
 	print "Xor value:", padding_bytes+x+1
 	#plain_byte = m ^ (padding_bytes+x+1)
 	print "Plaintext byte:", plain_byte
+	recovered_msg[x] = plain_byte
+recovered_text = ""
+for i in range(len(recovered_msg)):
+	recovered_text += str(chr(recovered_msg[len(recovered_msg)-i-1]))
+print "Recovered message:", recovered_text
 		
 #if(padding_oracle(key,iv,my_ciphertext)): print "Valid padding"
 #else: print "Invalid padding"
