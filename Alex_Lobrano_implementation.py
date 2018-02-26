@@ -27,6 +27,11 @@ def generate_message(size):
 	for i in range(size):
 		temp += random.choice(string.ascii_letters + string.digits)
 	return temp
+
+def increment_byte(val):
+	temp = val + 1
+	temp = temp % 256
+	return temp
 	
 def cbc_encrypt(key, iv, msg):
 	cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
