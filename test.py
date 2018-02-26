@@ -91,9 +91,10 @@ for x in range(0, 16-padding_bytes):
 	m = 0
 	while(not debug_oracle(key,iv,new_ciphertext)):
 		m += 1
-		test_cipher_array[last_byte-x-1] += 1
-		test_cipher_array[last_byte-x-1] = test_cipher_array[last_byte-x-1] % 255
-		#print "Byte is now",test_cipher_array[last_byte-1]
+		temp = test_cipher_array[last_byte-x-1] + 1		# save value to temp before saving to bytearray to avoid out of range problems
+		temp = temp % 256
+		test_cipher_array[last_byte-x-1] = temp
+		#print "Byte is now",test_cipher_array[last_byte-x-1]
 		new_ciphertext = ""
 		for i in range(len(test_cipher_array)):
 			new_ciphertext += str(chr(test_cipher_array[i]))
