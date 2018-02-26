@@ -33,6 +33,16 @@ def increment_byte(val):
 	temp = temp % 256
 	return temp
 	
+def change_byte(first_byte,pad_byte,value):
+	temp = first_byte ^ pad_byte
+	return temp ^ value
+	
+def create_string(array):
+	temp_string = ""
+	for i in range(len(array)):
+		temp_string += str(chr(array[i]))
+	return temp_string
+	
 def cbc_encrypt(key, iv, msg):
 	cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
 	encryptor = cipher.encryptor()
@@ -113,11 +123,12 @@ def padding_oracle(key, iv, ciphertext):
 	plaintext = cbc_decrypt(key, iv, ciphertext)
 	plaintext_array = bytearray(plaintext)
 	pad_bytes = plaintext_array[len(plaintext_array)-1]
+	if(pad_bytes == 0): return 0	#if last byte is 0, invalid pad
 	for i in range(pad_bytes):
 		if(plaintext_array[len(plaintext_array)-1-i] != pad_bytes): 
-			print "Invalid padding"
+			#print "Invalid padding"
 			return 0
-	print "Valid padding"
+	#print "Valid padding"
 	return 1
 	
 def oracle_attack(key, iv, ciphertext):
