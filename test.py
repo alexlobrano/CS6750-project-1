@@ -113,39 +113,38 @@ new_ciphertext = create_string(test_cipher_array)
 print "Reduced cipher:", new_ciphertext.encode('hex')
 
 # #make last byte equal 1
-first_pad_byte = new_length - 16 #32
+first_pad_byte = new_length - 16 - 1 #48
 m = 0
 while(not debug_oracle(key,iv,new_ciphertext)):
 	m += 1
-	test_cipher_array[first_pad_byte-1] = increment_byte(test_cipher_array[first_pad_byte-1])
+	test_cipher_array[first_pad_byte] = increment_byte(test_cipher_array[first_pad_byte])
 	new_ciphertext = create_string(test_cipher_array)
 padding_bytes = 1
 print "M:", m
-temp = test_cipher_array[first_pad_byte-1] ^ padding_bytes
-plain_byte = temp ^ original_cipher_array[first_pad_byte-1]
+temp = test_cipher_array[first_pad_byte] ^ padding_bytes
+plain_byte = temp ^ original_cipher_array[first_pad_byte]
 print "Xor value:", padding_bytes
 print "Plaintext byte:", chr(plain_byte)
-recovered_msg[x] = plain_byte
 
-# for x in range(0, 16):
-	# #update the value of bytes determined to be padding to 1 higher than the number of pad bytes
-	# for k in range(first_pad_byte-x, first_pad_byte+padding_bytes):
-		# test_cipher_array[k] = change_byte(test_cipher_array[k],padding_bytes+x,padding_bytes+x+1)
-		# print "Changing byte", k, "from", format(original_cipher_array[k], 'x'), "to", format(test_cipher_array[k], 'x')
-	# new_ciphertext = create_string(test_cipher_array)
+for x in range(0, 15):
+	#update the value of bytes determined to be padding to 1 higher than the number of pad bytes
+	for k in range(first_pad_byte-x, first_pad_byte+padding_bytes):
+		test_cipher_array[k] = change_byte(test_cipher_array[k],padding_bytes+x,padding_bytes+x+1)
+		print "Changing byte", k, "from", format(original_cipher_array[k], 'x'), "to", format(test_cipher_array[k], 'x')
+	new_ciphertext = create_string(test_cipher_array)
 	
-	# #loop and increment the value of the last byte before the pad bytes until there is valid padding
-	# m = 0
-	# while(not debug_oracle(key,iv,new_ciphertext)):
-		# m += 1
-		# test_cipher_array[first_pad_byte-x-1] = increment_byte(test_cipher_array[first_pad_byte-x-1])
-		# new_ciphertext = create_string(test_cipher_array)
-	# print "M:", m
-	# temp = test_cipher_array[first_pad_byte-x-1] ^ (padding_bytes+x+1)
-	# plain_byte = temp ^ original_cipher_array[first_pad_byte-x-1]
-	# print "Xor value:", padding_bytes+x+1
-	# print "Plaintext byte:", plain_byte
-	# recovered_msg[x] = plain_byte
+	#loop and increment the value of the last byte before the pad bytes until there is valid padding
+	m = 0
+	while(not debug_oracle(key,iv,new_ciphertext)):
+		m += 1
+		test_cipher_array[first_pad_byte-x-1] = increment_byte(test_cipher_array[first_pad_byte-x-1])
+		new_ciphertext = create_string(test_cipher_array)
+	print "M:", m
+	temp = test_cipher_array[first_pad_byte-x-1] ^ (padding_bytes+x+1)
+	plain_byte = temp ^ original_cipher_array[first_pad_byte-x-1]
+	print "Xor value:", padding_bytes+x+1
+	print "Plaintext byte:", chr(plain_byte)
+	#recovered_msg[x] = plain_byte
 	
 # recovered_text = ""
 # for i in range(len(recovered_msg)):
