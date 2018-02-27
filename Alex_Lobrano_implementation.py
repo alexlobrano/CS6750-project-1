@@ -5,7 +5,7 @@ import sys
 import time
 import random
 import string
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes, CipherAlgorithm
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend 
 
 def xor(string1, string2):
@@ -371,7 +371,7 @@ def oracle_attack_last_block_recovery(key, iv, ciphertext):
 	total_queries += temp[1]
 	
 	# Print the recovered message
-	print "Recovered message:" + recovered_msg[::-1]
+	print "Recovered message: " + recovered_msg[::-1]
 	print "Total queries:", total_queries
 	
 def oracle_attack_full_recovery(key, iv, ciphertext):
@@ -406,5 +406,5 @@ def oracle_attack_full_recovery(key, iv, ciphertext):
 		message_length -= 16
 	
 	# Print the recovered message
-	print "Recovered message:" + recovered_msg[::-1]
+	print "Recovered message: " + recovered_msg[::-1]
 	print "Total queries:", total_queries
