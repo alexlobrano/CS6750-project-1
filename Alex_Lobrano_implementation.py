@@ -367,7 +367,6 @@ def oracle_attack_last_block_recovery(key, iv, ciphertext):
 		message_length -= 16
 		temp = recover_block_with_no_padding(key, iv, ciphertext, message_length, filename)
 		
-		
 	recovered_msg += temp[0]
 	total_queries += temp[1]
 	
