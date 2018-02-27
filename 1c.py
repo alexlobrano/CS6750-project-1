@@ -17,7 +17,7 @@ for i in range(0,10):
 
 backend = default_backend()
 
-for i in range(10):
+for i in range(0,10):
 	print "\nNumber of blocks in message:", i+1
 	print "Message:", msg[i]
 	

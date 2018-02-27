@@ -1,28 +1,49 @@
 from Alex_Lobrano_implementation import *
 
+def debug_cbc_decrypt(key, iv, msg):
+	cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
+	decryptor = cipher.decryptor()
+	
+	total_bytes = (len(msg)/16)
+	plaintext_array = [None] * total_bytes
+	
+	#byte 1
+	plaintext_array[0] = xor(decryptor.update(msg[0:16]),iv)
+	plaintext = plaintext_array[0]
+	
+	#rest of bytes
+	for i in range(1,total_bytes):
+		xor_val = decryptor.update(msg[(i)*16:(i+1)*16])
+		#print "Xor F_k value",xor_val.encode('hex'),"and",msg[(i-1)*16:i*16].encode('hex'),"for byte",i
+		plaintext_array[i] = xor(xor_val,msg[(i-1)*16:i*16])
+		plaintext += plaintext_array[i]
+	return plaintext
+
 def debug_oracle(key,iv,ciphertext):
 	#print "Ciphertext:",ciphertext.encode('hex')
-	cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend)
-	decryptor = cipher.decryptor()
-	plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+	plaintext = debug_cbc_decrypt(key, iv, ciphertext)
 	#print "Decryption:",plaintext.encode('hex')
 	plaintext_array = bytearray(plaintext)
 	#for i in range(len(plaintext_array)):
 	#	print "i:",i,plaintext_array[i]
 	pad_bytes = plaintext_array[len(plaintext_array)-1]
+	#print "Expected bytes:", pad_bytes
 	if(pad_bytes == 0): return 0	#if last byte is 0, invalid pad
 	for i in range(pad_bytes):
 		if(plaintext_array[len(plaintext_array)-1-i] != pad_bytes): 
 			#print "Invalid padding"
 			return 0
 	#print "Valid padding"
-	return 1
-
-key = os.urandom(16)
-iv = os.urandom(16)
+	return 1	
+	
+#key = os.urandom(16)
+key = '6dbb3f397f4ef34201e49ecd53b29752'.decode('hex')
+#iv = os.urandom(16)
+iv = 'e4433307dea03f1668adce1eaf48f501'.decode('hex')
 ctr = os.urandom(16)
 #msg = "This is a test of a padding oracle attack."
 msg = "This is a test of a padding oracle attack. Testing with a second message."
+#msg = "This is a test of a padding oracle attack. Testing with a second"
 backend = default_backend() 
 
 ##################### CBC #####################
@@ -31,12 +52,14 @@ print "Message:", msg
 cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend)
 encryptor = cipher.encryptor()
 ciphertext = encryptor.update(msg) + encryptor.finalize()
+#ciphertext = cbc_encrypt(key,iv,msg)
 
 print "CBC:"
 print "Library encryption: " + ciphertext.encode('hex')
 
-decryptor = cipher.decryptor()
-plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+#decryptor = cipher.decryptor()
+#plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+plaintext = debug_cbc_decrypt(key,iv,ciphertext)
 
 print "Library decryption: " + plaintext.encode('hex')
 
@@ -72,7 +95,7 @@ for x in range(0, 16-padding_bytes):
 	
 	#loop and increment the value of the last byte before the pad bytes until there is valid padding
 	m = 0
-	while(not padding_oracle(key,iv,new_ciphertext)):
+	while(not debug_oracle(key,iv,new_ciphertext)):
 		m += 1
 		test_cipher_array[first_pad_byte-x-1] = increment_byte(test_cipher_array[first_pad_byte-x-1])
 		new_ciphertext = create_string(test_cipher_array)
@@ -83,7 +106,48 @@ for x in range(0, 16-padding_bytes):
 	print "Plaintext byte:", plain_byte
 	recovered_msg[x] = plain_byte
 	
-recovered_text = ""
-for i in range(len(recovered_msg)):
-	recovered_text += str(chr(recovered_msg[len(recovered_msg)-i-1]))
-print "Recovered message:", recovered_text
+#make new ciphertext without last byte
+new_length = first_pad_byte + padding_bytes	#64
+test_cipher_array = bytearray(ciphertext[:new_length])	#:64
+new_ciphertext = create_string(test_cipher_array)
+print "Reduced cipher:", new_ciphertext.encode('hex')
+
+# #make last byte equal 1
+first_pad_byte = new_length - 16 #32
+m = 0
+while(not debug_oracle(key,iv,new_ciphertext)):
+	m += 1
+	test_cipher_array[first_pad_byte-1] = increment_byte(test_cipher_array[first_pad_byte-1])
+	new_ciphertext = create_string(test_cipher_array)
+padding_bytes = 1
+print "M:", m
+temp = test_cipher_array[first_pad_byte-1] ^ padding_bytes
+plain_byte = temp ^ original_cipher_array[first_pad_byte-1]
+print "Xor value:", padding_bytes
+print "Plaintext byte:", chr(plain_byte)
+recovered_msg[x] = plain_byte
+
+# for x in range(0, 16):
+	# #update the value of bytes determined to be padding to 1 higher than the number of pad bytes
+	# for k in range(first_pad_byte-x, first_pad_byte+padding_bytes):
+		# test_cipher_array[k] = change_byte(test_cipher_array[k],padding_bytes+x,padding_bytes+x+1)
+		# print "Changing byte", k, "from", format(original_cipher_array[k], 'x'), "to", format(test_cipher_array[k], 'x')
+	# new_ciphertext = create_string(test_cipher_array)
+	
+	# #loop and increment the value of the last byte before the pad bytes until there is valid padding
+	# m = 0
+	# while(not debug_oracle(key,iv,new_ciphertext)):
+		# m += 1
+		# test_cipher_array[first_pad_byte-x-1] = increment_byte(test_cipher_array[first_pad_byte-x-1])
+		# new_ciphertext = create_string(test_cipher_array)
+	# print "M:", m
+	# temp = test_cipher_array[first_pad_byte-x-1] ^ (padding_bytes+x+1)
+	# plain_byte = temp ^ original_cipher_array[first_pad_byte-x-1]
+	# print "Xor value:", padding_bytes+x+1
+	# print "Plaintext byte:", plain_byte
+	# recovered_msg[x] = plain_byte
+	
+# recovered_text = ""
+# for i in range(len(recovered_msg)):
+	# recovered_text += str(chr(recovered_msg[len(recovered_msg)-i-1]))
+# print "Recovered message:", recovered_text
