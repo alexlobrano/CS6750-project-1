@@ -64,7 +64,3 @@ for i in range(0,10):
 	print "My decryption:      " + my_plaintext
 	
 	assert plaintext == my_plaintext
-
-	
-
-#assert cipher_text == Cipher_Text_FROM_YOUR_CTR_IMPLEMENTATION
