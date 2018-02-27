@@ -1,3 +1,9 @@
+# Implement the padding oracle attack discussed in class and presented in chapter 3.7.2 of the
+# [Katz-Lindell] textbook. You can query the padding oracle with any ciphertext except c.
+# For a particular message m and ciphertext c, print all steps of the attack including the exact queries and
+# answers from the padding oracle. Output the last block of the plaintext and the total number of queries to
+# the padding oracle needed for the attack to be successful.
+
 from Alex_Lobrano_implementation import *
 	
 key = os.urandom(16)

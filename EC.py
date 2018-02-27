@@ -1,3 +1,7 @@
+# Extend the attack to recover the entire message. Print the total number of queries
+# to the padding oracle, as well as all the queries you need to do per block and the answers from the padding
+# oracle.
+
 from Alex_Lobrano_implementation import *
 	
 key = os.urandom(16)
@@ -23,4 +27,4 @@ plaintext = decryptor.update(ciphertext) + decryptor.finalize()
 
 print "Library decryption: " + plaintext.encode('hex')
 
-oracle_attack_last_block_recovery(key, iv, ciphertext)
+oracle_attack_full_recovery(key, iv, ciphertext)
