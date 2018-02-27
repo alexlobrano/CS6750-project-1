@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import random
 import string
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes, CipherAlgorithm
@@ -126,9 +127,9 @@ def padding_oracle(key, iv, ciphertext):
 	if(pad_bytes == 0): return 0	#if last byte is 0, invalid pad
 	for i in range(pad_bytes):
 		if(plaintext_array[len(plaintext_array)-1-i] != pad_bytes): 
-			#print "Invalid padding"
+			print "Invalid padding"
 			return 0
-	#print "Valid padding"
+	print "Valid padding"
 	return 1
 	
 def oracle_attack(key, iv, ciphertext):
