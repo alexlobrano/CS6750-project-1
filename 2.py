@@ -1,3 +1,5 @@
+# 2.py
+
 # Implement the padding oracle attack discussed in class and presented in chapter 3.7.2 of the
 # [Katz-Lindell] textbook. You can query the padding oracle with any ciphertext except c.
 # For a particular message m and ciphertext c, print all steps of the attack including the exact queries and
@@ -9,8 +11,11 @@ from Alex_Lobrano_implementation import *
 key = os.urandom(16)
 iv = os.urandom(16)
 ctr = os.urandom(16)
-#msg = "This is a test of a padding oracle attack."
-msg = "This is a test of a padding oracle attack. Testing with a second message."
+msg = "This is a test of a padding oracle attack."
+#msg = "This is a test of a padding oracle attack. Testing with a longer message."
+#msg = "Test two blocks perfect padding."
+#msg = "Perfect padding."
+#msg = "Test message."
 backend = default_backend() 
 
 ##################### CBC #####################

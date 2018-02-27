@@ -1,3 +1,5 @@
+# 1c.py
+
 # Generate 10 random keys and 10 messages of different lengths. Encrypt each message under a different
 # key with both the library function and your own function. Test that the results match. Test that the
 # decryption of the ciphertexts under the same key matches with the original messages.
